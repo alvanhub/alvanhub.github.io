@@ -5,110 +5,202 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let x;
-let y;
-let dx;
-let dy;
-let radius = 100;
-let rectSize = 100;
-
-let state = 'menu';
+particles = [];
+let otherParticles = [];
+let initialX;
+let initialY;
+let initialAx = 0;
+let initialAy = 0.8;
+let limity = 0;
+let limitx = 0;
+let length;
+let gravity;
+let yVelocity;
+let yAcceleration;
+let state = "move";
+let ground;
+let platformX;
+let platformY;
+let pWidth = 100;
+let pHeight = 25;
+let d1 = 3;
+let bossX = 500;
+let bossY = 500;
+let bossSize = 200;
+var hit = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  
-  x = width/2;
-  y = height/2;
-  dx = random(-15, 15);
-  dy = random(-15, 15);
+  length = 38;
+  initialX = 170;
+  initialY = height/2;
+  gravity = 1;
+  yVelocity = 0;
+  yAcceleration = 0;
+  platformY = height;
+  ground = height - 50;
+  platformX = 150;
+
 }
 
 function draw() {
-  background(255);
+  background(220);
+  rect(bossX,bossY,bossSize,bossSize);
 
-  if (state === 'menu') {
-    showMenu();
-    checkIfButtonClicked();
+  // hit = collideRectCircle(bossX,bossY,bossSize,bossSize,initialX,initialY,7)
+
+  // print("cl?" + hit);
+  
+  movingPlatforms1()
+  
+  fill(255);
+  yVelocity += yAcceleration;
+  yVelocity += gravity;
+  initialY += yVelocity;
+
+  yAcceleration = 0;
+  if (initialY + length >= ground) {
+    initialY = ground - length - 1; 
+    yVelocity = 0;
   }
   
-
-  if (mode === "circle") {
-    displayCircle();
-    moveShape();
+  if (initialX>platformX && initialX<platformX+pWidth && initialY<platformY) {
+    ground = platformY;
+  }else{
+    ground += 5;
   }
-  if (mode === "rectangle") {
-    displayRectangle();
-    moveShape();
+  
+ push();
+  if (state === "water") {
+     updateParticles(particles, initialX,initialY,initialAx, initialAy);
+    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
+    
+  if (limity < 30) {
+      if (keyIsDown(UP_ARROW)) {
+         initialAy -= 0.01;
+        limity += 1;
+       }
+  }
+    if (limity > -10) {
+       if (keyIsDown(DOWN_ARROW)) {
+         initialAy += 0.01;
+         limity -= 1;
+       }
+    }
+    if (limitx > -15) {
+       if (keyIsDown(LEFT_ARROW)) {
+         initialAx -= 0.01;
+         limitx -= 1;
+       }
+    }
+    if (limitx < 10) {
+       if (keyIsDown(RIGHT_ARROW)) {
+         initialAx += 0.01;
+         limitx += 1;
+       }
+    }
+  
+  }else if (state === "move") {
+    updateParticles(particles, initialX,initialY,initialAx, initialAy);
+    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
+     
+   if (keyIsDown(LEFT_ARROW)) {
+     initialX -= 2;
+      
+   }
+   if (keyIsDown(RIGHT_ARROW)) {
+     initialX += 4;
+     
+   }
+  }
+  pop();
+  
+  rect(initialX,initialY,length,length);
+  
+  
+  
+}
+
+function updateParticles(particleArray,x,y, ax, ay) {
+ for (let i = particleArray.length - 1; i >= 0; i--) {
+    particleArray[i].update();
+    particleArray[i].show(); }
+  for (let i = 0; i < 5; i++) {
+    
+    let p = new Particle(x,y,ax,ay);
+    particleArray.push(p);
+  
+     if (particleArray[i].finished()) {
+       particleArray.splice(i, 1);
+     }
+  } 
+}
+
+class Particle {
+
+  constructor(x,y,ax,ay) {
+    this.x = x;
+    this.y = y;
+    this.vx = random(5,6);
+    this.vy = random(16,18);
+    this.ay = ay;
+    this.ax = ax;
+    this.alpha = 250;
+  }
+
+  finished() {
+    return this.alpha < 0;
+  }
+
+  update() {
+    
+    if (this.y != 0) {
+      this.x += this.vx;
+      this.y -= this.vy;
+      this.vy -= this.ay;
+      this.vx += this.ax;
+      this.alpha -= 5;
+    }   
+    if (this.x>bossX && this.x<bossX+bossSize && this.y<bossY && this.y>bossY+bossSize) {
+      bossSize -=50;
+    }
+    
+  }
+
+  show() {
+    noStroke();
+    //stroke(255);
+    fill(0,0,255, this.alpha);
+    ellipse(this.x, this.y + 40, 7);
+  }
+
+}
+
+function keyTyped() {
+  if (key === 'a') {
+    state = "water";
+  }else if (key === 's') {
+    state = "move";
   }
 }
 
-
-function showMenu() {
-  rectMode(CENTER);
-  fill(255,0,0,125);
-  rect(width/2,height/2 - 100, 200,75);
-  textAlign(CENTER, CENTER);
-  textSize(50);
-  fill(0);
-  text('rectangle', width/2, height/2 - 100);
-
-
-  fill(255,0,0,125);
-  rect(width/2,height/2 + 100, 200,75);
-  fill(0);
-  text('circle', width/2, height/2 + 100);
-}
-
-function checkIfButtonClicked() {
-  if (mouseIsPressed) {
-    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 && mouseY > height/2 -75 && moouseY < height/2 + 75){
-      state = 'rectangle';
+  function keyPressed() {
+    if (state === "move") {
+      if (keyCode === UP_ARROW){
+        if (initialY >= 100) {
+      yAcceleration += -20;
+        }
     }
   }
-  if (mouseIsPressed) {
-    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 && mouseY > height/2 + 100 - 75 && moouseY < height/2 + 100 + 75){
-      state = 'circle';
-    }
-  }
+}
+function mouseClicked() {
+  console.log(initialY);
 }
 
-
-
-
-function windowResized() {
-  setup();
-}
-
-function moveShape() {
-  // move
-  x += dx;
-  y += dy;
-}
-
-function displayCircle() {
-  // bounce if needed
-  if (x > width - radius/2 || x < 0 + radius/2) {
-    dx *= -1;
+function movingPlatforms1() {
+  platformY += d1;
+  if (platformY > height || platformY < 0) {
+    d1 *= -1;
   }
-
-  if (y > height - radius/2 || y < 0 + radius/2) {
-    dy *= -1;
-  }
-
-  fill(0);
-  circle(x, y, radius);
-}
-
-function displayRectangle() {
-  // bounce if needed
-  if (x > width - rectSize || x < 0) {
-    dx *= -1;
-  }
-
-  if (y > height - rectSize || y < 0) {
-    dy *= -1;
-  }
-
-  fill(0);
-  rect(x, y, rectSize, rectSize);
+  rect(platformX,platformY,pWidth,pHeight);
 }
