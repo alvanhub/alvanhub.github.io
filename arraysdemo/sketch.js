@@ -17,12 +17,15 @@ function draw() {
   background(220);
   for (let i = 0; i <shapes.length; i++) {
     shapes[i].y += shapes[i].dy;
-
     noStroke()
     fill(shapes[i].color);
     ellipse(shapes[i].x,shapes[i].y,shapes[i].radius*2)
+    if (shapes[i].y > height){
+      shapes.splice(i,1);
+    }
   }
 }
+console.log(shapes);
 
 function mousePressed() {
   let someShape ={

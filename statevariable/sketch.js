@@ -24,7 +24,7 @@ let platformY;
 let pWidth = 100;
 let pHeight = 25;
 let d1 = 3;
-let bossX = 500;
+let bossX = 350;
 let bossY = 500;
 let bossSize = 200;
 var hit = false;
@@ -47,9 +47,7 @@ function draw() {
   background(220);
   rect(bossX,bossY,bossSize,bossSize);
 
-  // hit = collideRectCircle(bossX,bossY,bossSize,bossSize,initialX,initialY,7)
-
-  // print("cl?" + hit);
+   
   
   movingPlatforms1()
   
@@ -124,32 +122,32 @@ function draw() {
 function updateParticles(particleArray,x,y, ax, ay) {
  for (let i = particleArray.length - 1; i >= 0; i--) {
     particleArray[i].update();
+    if (particleArray[i].finished()) {
+      particleArray.splice(i, 1);
+     }
     particleArray[i].show(); }
   for (let i = 0; i < 5; i++) {
     
     let p = new Particle(x,y,ax,ay);
     particleArray.push(p);
   
-     if (particleArray[i].finished()) {
-       particleArray.splice(i, 1);
-     }
-  } 
-}
-
-class Particle {
-
-  constructor(x,y,ax,ay) {
-    this.x = x;
-    this.y = y;
-    this.vx = random(5,6);
-    this.vy = random(16,18);
-    this.ay = ay;
-    this.ax = ax;
-    this.alpha = 250;
+    } 
   }
-
-  finished() {
-    return this.alpha < 0;
+  
+  class Particle {
+    
+    constructor(x,y,ax,ay) {
+      this.x = x;
+      this.y = y;
+      this.vx = random(5,6);
+      this.vy = random(16,18);
+      this.ay = ay;
+      this.ax = ax;
+      this.alpha = 250;
+    }
+    
+    finished() {
+    return this.alpha <= 0;
   }
 
   update() {
@@ -161,9 +159,12 @@ class Particle {
       this.vx += this.ax;
       this.alpha -= 5;
     }   
-    if (this.x>bossX && this.x<bossX+bossSize && this.y<bossY && this.y>bossY+bossSize) {
-      bossSize -=50;
-    }
+     if (this.x>bossX && this.x<bossX+bossSize && this.y>bossY && this.y<bossY+bossSize) {
+       bossSize -=0.05;
+       if (bossX <= windowWidth-500) {
+        bossX += random(-1,2);
+       }
+     }
     
   }
 
@@ -193,9 +194,7 @@ function keyTyped() {
     }
   }
 }
-function mouseClicked() {
-  console.log(initialY);
-}
+
 
 function movingPlatforms1() {
   platformY += d1;

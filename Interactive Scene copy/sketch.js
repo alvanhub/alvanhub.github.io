@@ -64,7 +64,11 @@ function updateBullets() {
     thisBullet.x += thisBullet.speed * cos(thisBullet.angle);
     thisBullet.y += thisBullet.speed * sin(thisBullet.angle);
     circle(thisBullet.x,thisBullet.y,thisBullet.radius)
+    if (thisBullet.x > windowWidth && thisBullet.y < 0 && thisBullet.y > windowHeight - 200){
+      bullets.splice(0,1);
+    }
   }
+  
 
 
 }
