@@ -17,12 +17,19 @@ let length;
 let gravity;
 let yVelocity;
 let yAcceleration;
-let state = "move";
+let motion = "move";
+let state = "menu";
 let ground;
 let platformX1;
 let platformY1;
 let platformX2;
 let platformY2;
+let platformX3;
+let platformY3;
+let platformX4;
+let platformY4;
+let platformX5;
+let platformY5;
 let pWidth = 100;
 let pHeight = 25;
 let add1 = 3;
@@ -30,10 +37,12 @@ let add2 = 3;
 let d1 = 3;
 let d2 = -3;
 let d3 = 3;
+let d4 =-3;
+let d5 = 3;
 let bossX = 500;
 let bossY = 500;
 let bossSize = 200;
-let timer = 10;
+let timer = 100;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -47,91 +56,42 @@ function setup() {
   platformX1 = 150;
   platformY2 = height/2;
   platformX2 = 400;
+  platformY2 = height/2;
+  platformX2 = 400;
+  platformY3 = height/2;
+  platformX3 = 650;
+  platformY4 = height/2;
+  platformX4 = 850;
+  platformY5 = height/2;
+  platformX5 = 1050;
   ground = height - 50;
 
 }
 
 function draw() {
   background(220);
-  timeLeft();
-
-  
-  rect(bossX,bossY,bossSize,bossSize);
-
-   
-  
-  movingPlatforms1();
-  movingPlatforms2();
-  
-  fill(255);
-  yVelocity += yAcceleration;
-  yVelocity += gravity;
-  initialY += yVelocity;
-
-  yAcceleration = 0;
-  if (initialY + length >= ground) {
-    initialY = ground - length - 1; 
-    yVelocity = 0;
+  if (state === "menu") {
+    menu();
+    checkButtonClick();
   }
   
-  if (initialX>platformX1 && initialX<platformX1+pWidth  && initialY<platformY1) {
-    ground = platformY1;
-  }
-  else if (initialX>platformX2 && initialX<platformX2+pWidth && initialY<platformY2) {
-    ground = platformY2;
-  }else{
-    ground += 5;
-  }
   
- push();
-  if (state === "water") {
-     updateParticles(particles, initialX,initialY,initialAx, initialAy);
-    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
+  
+  if (state === "gameplay"){
+    movingPlatforms1();
+    movingPlatforms2();
+    movingPlatforms3();
+    movingPlatforms4();
+    movingPlatforms5();
     
-  if (limity < 30) {
-      if (keyIsDown(UP_ARROW)) {
-         initialAy -= 0.01;
-        limity += 1;
-       }
+    push();
+    commandControls();
+    pop();
+    createAvatar();
+    
+    rect(bossX,bossY,bossSize,bossSize);
+    timeLeft();
   }
-    if (limity > -10) {
-       if (keyIsDown(DOWN_ARROW)) {
-         initialAy += 0.01;
-         limity -= 1;
-       }
-    }
-    if (limitx > -50) {
-       if (keyIsDown(LEFT_ARROW)) {
-         initialAx -= 0.01;
-         limitx -= 1;
-       }
-    }
-    if (limitx < 10) {
-       if (keyIsDown(RIGHT_ARROW)) {
-         initialAx += 0.01;
-         limitx += 1;
-       }
-    }
-  
-  }else if (state === "move") {
-    updateParticles(particles, initialX,initialY,initialAx, initialAy);
-    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
-     
-   if (keyIsDown(LEFT_ARROW)) {
-     initialX -= 2;
-      
-   }
-   if (keyIsDown(RIGHT_ARROW)) {
-     initialX += 4;
-     
-   }
-  }
-  pop();
-  
-  rect(initialX,initialY,length,length);
-  
-  
-  
 }
 
 function updateParticles(particleArray,x,y, ax, ay) {
@@ -175,13 +135,13 @@ function updateParticles(particleArray,x,y, ax, ay) {
       this.alpha -= 4;
     }   
      if (this.x>bossX && this.x<bossX+bossSize && this.y>bossY && this.y<bossY+bossSize) {
-       bossSize -=0.009;
+       bossSize -=0.05;
        bossY -= add1;
        bossX += add2;
        if (bossX > windowWidth - 200|| bossX < 200) {
          add2 *= -1;
       }else if (bossY < 200 || bossY > windowHeight -200){
-        add3 *= -1;
+        add1 *= -1;
       }
      }
     
@@ -198,16 +158,16 @@ function updateParticles(particleArray,x,y, ax, ay) {
 
 function keyTyped() {
   if (key === 'a') {
-    state = "water";
+    motion = "water";
   }else if (key === 's') {
-    state = "move";
+    motion = "move";
   }
 }
 
   function keyPressed() {
-    if (state === "move") {
+    if (motion === "move") {
       if (keyCode === UP_ARROW){
-        if (ground === platformY1 || ground === platformY2){
+        if (ground === platformY1 || ground === platformY2 || ground === platformY3 || ground === platformY4 || ground === platformY5){
         yAcceleration += -20;
         }
     }
@@ -231,15 +191,134 @@ function movingPlatforms2() {
   rect(platformX2,platformY2,pWidth,pHeight);
 }
 
+function movingPlatforms3() {
+  platformY3 += d3;
+  if (platformY3 > height || platformY3 < 0) {
+    d3 *= -1;
+  }
+  rect(platformX3,platformY3,pWidth,pHeight);
+}
+
+function movingPlatforms4() {
+  platformY4 += d4;
+  if (platformY4 > height || platformY4 < 0) {
+    d4 *= -1;
+  }
+  rect(platformX4,platformY4,pWidth,pHeight);
+}
+
+function movingPlatforms5() {
+  platformY5 += d5;
+  if (platformY5 > height || platformY5 < 0) {
+    d5 *= -1;
+  }
+  rect(platformX5,platformY5,pWidth,pHeight);
+}
+
+
+
 function timeLeft() {
   textAlign(CENTER, CENTER);
   textSize(100);
-  text(timer, width/2, 200);
+  text(timer, width/2, 100);
 
   if (frameCount % 60 == 0 && timer > 0) {
     timer --;
   }
-  if (timer === 0){
-    text("GAME",width/2,200);
+}
+
+function createAvatar() {
+  rect(initialX,initialY,length,length);
+  fill(255);
+  yVelocity += yAcceleration;
+  yVelocity += gravity;
+  initialY += yVelocity;
+
+  yAcceleration = 0;
+  if (initialY + length >= ground) {
+    initialY = ground - length - 1; 
+    yVelocity = 0;
   }
+  
+  if (initialX>platformX1-37 && initialX<platformX1+pWidth+37  && initialY<platformY1) {
+    ground = platformY1;
+  }
+  else if (initialX>platformX2-37 && initialX<platformX2+pWidth+37 && initialY<platformY2) {
+    ground = platformY2;
+  }
+  else if (initialX>platformX3-37 && initialX<platformX3+pWidth+37 && initialY<platformY3) {
+    ground = platformY3;
+  }
+  else if (initialX>platformX4-37 && initialX<platformX4+pWidth+37 && initialY<platformY4) {
+    ground = platformY4;
+  }
+  else if (initialX>platformX5-37 && initialX<platformX5+pWidth+37 && initialY<platformY5) {
+    ground = platformY5;
+  }else{
+    ground += 5;
+  }
+}
+
+function commandControls() {
+  if (motion === "water") {
+    updateParticles(particles, initialX,initialY,initialAx, initialAy);
+    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
+    
+    if (limity < 30) {
+      if (keyIsDown(UP_ARROW)) {
+        initialAy -= 0.01;
+        limity += 1;
+      }
+    }
+    if (limity > -10) {
+      if (keyIsDown(DOWN_ARROW)) {
+        initialAy += 0.01;
+        limity -= 1;
+      }
+    }
+    if (limitx > -50) {
+      if (keyIsDown(LEFT_ARROW)) {
+        initialAx -= 0.01;
+        limitx -= 1;
+      }
+    }
+    if (limitx < 10) {
+      if (keyIsDown(RIGHT_ARROW)) {
+        initialAx += 0.01;
+        limitx += 1;
+      }
+    }
+    
+  }else if (motion === "move") {
+    updateParticles(particles, initialX,initialY,initialAx, initialAy);
+    updateParticles(particles, initialX,initialY,initialAx + 0.05, initialAy);
+    
+    if (keyIsDown(LEFT_ARROW)) {
+      initialX -= 2;
+      
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      initialX += 4;
+      
+    }
+  }
+}
+
+function menu() {
+  rectMode(CENTER);
+  fill(255, 0, 0, 125);
+  rect(width/2, height/2 - 100, 400, 150);
+  textAlign(CENTER, CENTER);
+  textSize(50);
+  fill(0);
+  text("Start",width/2,height/2 -100);
+}
+
+function checkButtonClick() {
+  if (mouseIsPressed) {
+    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 &&
+        mouseY > height/2 - 100 - 75 && mouseY < height/2 - 100 + 75) {
+          state = "gameplay";
+    }
+}
 }
