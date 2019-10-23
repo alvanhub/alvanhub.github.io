@@ -19,15 +19,21 @@ let yVelocity;
 let yAcceleration;
 let state = "move";
 let ground;
-let platformX;
-let platformY;
+let platformX1;
+let platformY1;
+let platformX2;
+let platformY2;
 let pWidth = 100;
 let pHeight = 25;
+let add1 = 3;
+let add2 = 3;
 let d1 = 3;
-let bossX = 350;
+let d2 = -3;
+let d3 = 3;
+let bossX = 500;
 let bossY = 500;
 let bossSize = 200;
-var hit = false;
+let timer = 10;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -37,19 +43,25 @@ function setup() {
   gravity = 1;
   yVelocity = 0;
   yAcceleration = 0;
-  platformY = height;
+  platformY1 = height;
+  platformX1 = 150;
+  platformY2 = height/2;
+  platformX2 = 400;
   ground = height - 50;
-  platformX = 150;
 
 }
 
 function draw() {
   background(220);
+  timeLeft();
+
+  
   rect(bossX,bossY,bossSize,bossSize);
 
    
   
-  movingPlatforms1()
+  movingPlatforms1();
+  movingPlatforms2();
   
   fill(255);
   yVelocity += yAcceleration;
@@ -62,8 +74,11 @@ function draw() {
     yVelocity = 0;
   }
   
-  if (initialX>platformX && initialX<platformX+pWidth && initialY<platformY) {
-    ground = platformY;
+  if (initialX>platformX1 && initialX<platformX1+pWidth  && initialY<platformY1) {
+    ground = platformY1;
+  }
+  else if (initialX>platformX2 && initialX<platformX2+pWidth && initialY<platformY2) {
+    ground = platformY2;
   }else{
     ground += 5;
   }
@@ -85,7 +100,7 @@ function draw() {
          limity -= 1;
        }
     }
-    if (limitx > -15) {
+    if (limitx > -50) {
        if (keyIsDown(LEFT_ARROW)) {
          initialAx -= 0.01;
          limitx -= 1;
@@ -157,13 +172,17 @@ function updateParticles(particleArray,x,y, ax, ay) {
       this.y -= this.vy;
       this.vy -= this.ay;
       this.vx += this.ax;
-      this.alpha -= 5;
+      this.alpha -= 4;
     }   
      if (this.x>bossX && this.x<bossX+bossSize && this.y>bossY && this.y<bossY+bossSize) {
-       bossSize -=0.05;
-       if (bossX <= windowWidth-500) {
-        bossX += random(-1,2);
-       }
+       bossSize -=0.009;
+       bossY -= add1;
+       bossX += add2;
+       if (bossX > windowWidth - 200|| bossX < 200) {
+         add2 *= -1;
+      }else if (bossY < 200 || bossY > windowHeight -200){
+        add3 *= -1;
+      }
      }
     
   }
@@ -188,8 +207,8 @@ function keyTyped() {
   function keyPressed() {
     if (state === "move") {
       if (keyCode === UP_ARROW){
-        if (initialY >= 100) {
-      yAcceleration += -20;
+        if (ground === platformY1 || ground === platformY2){
+        yAcceleration += -20;
         }
     }
   }
@@ -197,9 +216,30 @@ function keyTyped() {
 
 
 function movingPlatforms1() {
-  platformY += d1;
-  if (platformY > height || platformY < 0) {
+  platformY1 += d1;
+  if (platformY1 > height || platformY1 < 0) {
     d1 *= -1;
   }
-  rect(platformX,platformY,pWidth,pHeight);
+  rect(platformX1,platformY1,pWidth,pHeight);
+}
+
+function movingPlatforms2() {
+  platformY2 += d2;
+  if (platformY2 > height || platformY2 < 0) {
+    d2 *= -1;
+  }
+  rect(platformX2,platformY2,pWidth,pHeight);
+}
+
+function timeLeft() {
+  textAlign(CENTER, CENTER);
+  textSize(100);
+  text(timer, width/2, 200);
+
+  if (frameCount % 60 == 0 && timer > 0) {
+    timer --;
+  }
+  if (timer === 0){
+    text("GAME",width/2,200);
+  }
 }
