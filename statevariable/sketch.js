@@ -34,19 +34,26 @@ let pWidth = 100;
 let pHeight = 25;
 let add1 = 3;
 let add2 = 3;
-let d1 = 3;
-let d2 = -3;
-let d3 = 3;
-let d4 =-3;
-let d5 = 3;
+let d1 = 6;
+let d2 = -6;
+let d3 = 6;
+let d4 =-6;
+let d5 = 6;
 let bossX = 500;
 let bossY = 500;
 let bossSize = 200;
-let timer = 100;
+let timer = 1;
+let fire;
+let water;
+
+function preload() {
+  fire = loadImage("assets/fire.png");
+  water = loadImage("assets/water.png");
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  length = 38;
+  length = 70;
   initialX = 170;
   initialY = height/2;
   gravity = 1;
@@ -54,8 +61,6 @@ function setup() {
   yAcceleration = 0;
   platformY1 = height;
   platformX1 = 150;
-  platformY2 = height/2;
-  platformX2 = 400;
   platformY2 = height/2;
   platformX2 = 400;
   platformY3 = height/2;
@@ -74,9 +79,7 @@ function draw() {
     menu();
     checkButtonClick();
   }
-  
-  
-  
+
   if (state === "gameplay"){
     movingPlatforms1();
     movingPlatforms2();
@@ -88,9 +91,16 @@ function draw() {
     commandControls();
     pop();
     createAvatar();
-    
-    rect(bossX,bossY,bossSize,bossSize);
+    createBoss();
     timeLeft();
+  }
+  if (state === "gameOver") {
+    gameOver();
+    checkButtonClick();
+  }
+  if (state === "winner"){
+    winner();
+    checkButtonClick();
   }
 }
 
@@ -114,7 +124,7 @@ function updateParticles(particleArray,x,y, ax, ay) {
     constructor(x,y,ax,ay) {
       this.x = x;
       this.y = y;
-      this.vx = random(5,6);
+      this.vx = random(2,3);
       this.vy = random(16,18);
       this.ay = ay;
       this.ax = ax;
@@ -132,15 +142,15 @@ function updateParticles(particleArray,x,y, ax, ay) {
       this.y -= this.vy;
       this.vy -= this.ay;
       this.vx += this.ax;
-      this.alpha -= 4;
+      this.alpha -= 4.6;
     }   
      if (this.x>bossX && this.x<bossX+bossSize && this.y>bossY && this.y<bossY+bossSize) {
        bossSize -=0.05;
        bossY -= add1;
        bossX += add2;
-       if (bossX > windowWidth - 200|| bossX < 200) {
+       if (bossX > windowWidth || bossX < 100) {
          add2 *= -1;
-      }else if (bossY < 200 || bossY > windowHeight -200){
+      }else if (bossY < 100 || bossY > windowHeight){
         add1 *= -1;
       }
      }
@@ -149,9 +159,9 @@ function updateParticles(particleArray,x,y, ax, ay) {
 
   show() {
     noStroke();
-    //stroke(255);
+    stroke(255);
     fill(0,0,255, this.alpha);
-    ellipse(this.x, this.y + 40, 7);
+    ellipse(this.x + 10, this.y + 25, 7);
   }
 
 }
@@ -168,8 +178,8 @@ function keyTyped() {
     if (motion === "move") {
       if (keyCode === UP_ARROW){
         if (ground === platformY1 || ground === platformY2 || ground === platformY3 || ground === platformY4 || ground === platformY5){
-        yAcceleration += -20;
-        }
+          yAcceleration += -20;
+      }
     }
   }
 }
@@ -184,6 +194,7 @@ function movingPlatforms1() {
 }
 
 function movingPlatforms2() {
+  rectMode(CORNER);
   platformY2 += d2;
   if (platformY2 > height || platformY2 < 0) {
     d2 *= -1;
@@ -225,14 +236,27 @@ function timeLeft() {
   if (frameCount % 60 == 0 && timer > 0) {
     timer --;
   }
+  if (timer === 0){
+    state = "gameOver";
+    timer = 100;
+  }
+  if (state === "winner") {
+    timer = 100
+  }
 }
 
 function createAvatar() {
-  rect(initialX,initialY,length,length);
+  image(water,initialX - 20,initialY - 5,length,length);
   fill(255);
   yVelocity += yAcceleration;
   yVelocity += gravity;
   initialY += yVelocity;
+
+  if (initialY > windowHeight) {
+    state = "gameOver";
+    initialX = 170;
+    initialY = height/2;
+  }
 
   yAcceleration = 0;
   if (initialY + length >= ground) {
@@ -240,19 +264,19 @@ function createAvatar() {
     yVelocity = 0;
   }
   
-  if (initialX>platformX1-37 && initialX<platformX1+pWidth+37  && initialY<platformY1) {
+  if (initialX>platformX1-37 && initialX<platformX1+pWidth  && initialY<platformY1) {
     ground = platformY1;
   }
-  else if (initialX>platformX2-37 && initialX<platformX2+pWidth+37 && initialY<platformY2) {
+  else if (initialX>platformX2-37 && initialX<platformX2+pWidth && initialY<platformY2) {
     ground = platformY2;
   }
-  else if (initialX>platformX3-37 && initialX<platformX3+pWidth+37 && initialY<platformY3) {
+  else if (initialX>platformX3-37 && initialX<platformX3+pWidth && initialY<platformY3) {
     ground = platformY3;
   }
-  else if (initialX>platformX4-37 && initialX<platformX4+pWidth+37 && initialY<platformY4) {
+  else if (initialX>platformX4-37 && initialX<platformX4+pWidth && initialY<platformY4) {
     ground = platformY4;
   }
-  else if (initialX>platformX5-37 && initialX<platformX5+pWidth+37 && initialY<platformY5) {
+  else if (initialX>platformX5-37 && initialX<platformX5+pWidth && initialY<platformY5) {
     ground = platformY5;
   }else{
     ground += 5;
@@ -276,13 +300,13 @@ function commandControls() {
         limity -= 1;
       }
     }
-    if (limitx > -50) {
+    if (limitx > -30) {
       if (keyIsDown(LEFT_ARROW)) {
         initialAx -= 0.01;
         limitx -= 1;
       }
     }
-    if (limitx < 10) {
+    if (limitx < 20) {
       if (keyIsDown(RIGHT_ARROW)) {
         initialAx += 0.01;
         limitx += 1;
@@ -306,7 +330,7 @@ function commandControls() {
 
 function menu() {
   rectMode(CENTER);
-  fill(255, 0, 0, 125);
+  fill(255);
   rect(width/2, height/2 - 100, 400, 150);
   textAlign(CENTER, CENTER);
   textSize(50);
@@ -316,9 +340,46 @@ function menu() {
 
 function checkButtonClick() {
   if (mouseIsPressed) {
-    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 &&
-        mouseY > height/2 - 100 - 75 && mouseY < height/2 - 100 + 75) {
-          state = "gameplay";
+    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 && mouseY > height/2 - 100 - 75 && mouseY < height/2 - 100 + 75) {
+      state = "gameplay";
     }
+    if (mouseX > width/2 -200 && mouseX < width/2 + 200 && mouseY > height/2-75  && mouseY < height/2 + 75 && state === "gameOver") {
+      state = "gameplay";
+    }
+    if (mouseX > width/2 -200 && mouseX < width/2 + 200 && mouseY > height/2-75  && mouseY < height/2 + 75 && state === "winner") {
+      state = "gameplay";
+    }
+  }
 }
+
+function gameOver() {
+  rectMode(CORNER);
+  fill(255);
+  rect(width/2 -200, height/2-75 , 400, 150);
+  textAlign(CENTER, CENTER);
+  textSize(50);
+  fill(0);
+  text("Game Over",width/2,height/2-250);
+  text("Play Again",width/2,height/2);
+}
+
+function winner() {
+  rectMode(CORNER);
+  fill(255);
+  rect(width/2 -200, height/2-75 , 400, 150);
+  textAlign(CENTER, CENTER);
+  textSize(50);
+  fill(0);
+  text("Winner",width/2,height/2-250);
+  text("Play Again",width/2,height/2);
+}
+
+function createBoss(){
+  image(fire,bossX,bossY,bossSize,bossSize);
+  if (bossSize < 200){
+    state = "winner"
+    bossSize = 200;
+    bossX = 800;
+    bossY = 500;
+  }
 }
