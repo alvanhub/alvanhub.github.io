@@ -12,6 +12,9 @@ let playerX = 15;
 let playerY = 15;
 let yVelocity = 1;
 let xVelocity = 0;
+let direction = "vertical"
+let oldPositions;
+let state = "go"
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -26,10 +29,13 @@ function setup() {
 
 function draw() {
   background(220);
+  if (state === "go"){
   displayGrid(grid, rows, cols);
   if (frameCount % 10 === 0) {
     handleKey();
   }
+}
+
 }
 
 function windowResized() {
@@ -43,27 +49,42 @@ function windowResized() {
 
 function handleKey() {
   if (key === "s") {
-    yVelocity = 1;
-    xVelocity = 0;
+    if (direction === "horizontal"){
+      yVelocity = 1;
+      xVelocity = 0;
+    }
+    direction = "vertical";
   }
-  if (key === "d" ) {
-    yVelocity = 0;
-    xVelocity = 1;
+  if (key === "d") {
+    if (direction === "vertical"){
+      yVelocity = 0;
+      xVelocity = 1;
+    }
+    direction = "horizontal";
   }
   if (key === "a") {
-    yVelocity = 0;
-    xVelocity = -1;
+    if (direction === "vertical"){
+      yVelocity = 0;
+      xVelocity = -1;
+    }
+    direction = "horizontal";
   }
   if (key === "w" ) {
-    yVelocity = -1;
-    xVelocity = 0;
+    if (direction === "horizontal"){
+      yVelocity = -1;
+      xVelocity = 0;
+    }
+    direction = "vertical";
   }
   
   playerY += yVelocity;
   playerX += xVelocity;
+  oldPositions.push(playerX);
 
   // put player back into grid
-  grid[playerY][playerX] = 1;
+  
+    grid[playerY][playerX] = 1;
+  
 }
 
 function createEmptyGrid() {
@@ -92,37 +113,15 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
-function update() {
-  let nextTurn = createEmptyGrid();
 
+
+function check(){
+  let cgrid = [];
   for (let x = 0; x < cols; x++) {
+    cgrid.push([]);
     for (let y = 0; y < rows; y++) {
-      let neighbors = 0;
-
-      //loop around the neighbor spots...
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          //deal with edge cases
-          if (x+i >= 0 && x+i < cols && y+j >= 0 && y+j < rows) {
-            neighbors += grid[y+j][x+i];
-          }
-        }
-      }
-      //don't count self as a neighbor
-      neighbors -= grid[y][x];
-
-      //apply rules!
-      // if(grid[y][x]=== 0){
-
-      // }
-
-
-      if (grid[y][x] === 1) { //currently dead
-        if (neighbors === 1) {
-          nextTurn[y-1][x] = 1;
-        }
-      }
+      cgrid[x].push(grid[playerX][playerY]);
     }
   }
-  grid = nextTurn;
+  return cgrid;
 }
