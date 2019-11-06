@@ -12,6 +12,7 @@ let playerX = 15;
 let playerY = 15;
 let yVelocity = 1;
 let xVelocity = 0;
+let speed = 20;
 let direction = "vertical"
 let oldPositions;
 let state = "go"
@@ -31,10 +32,17 @@ function draw() {
   background(220);
   if (state === "go"){
   displayGrid(grid, rows, cols);
-  if (frameCount % 10 === 0) {
+  if (frameCount % speed === 0) {
     handleKey();
   }
 }
+if (keyIsDown(LEFT_ARROW)){
+  speed = 10;
+}else{
+  speed = 20;
+}
+
+console.log(playerX)
 
 }
 
@@ -48,6 +56,7 @@ function windowResized() {
 }
 
 function handleKey() {
+  
   if (key === "s") {
     if (direction === "horizontal"){
       yVelocity = 1;
@@ -69,7 +78,7 @@ function handleKey() {
     }
     direction = "horizontal";
   }
-  if (key === "w" ) {
+  if (key === "w") {
     if (direction === "horizontal"){
       yVelocity = -1;
       xVelocity = 0;
@@ -77,14 +86,18 @@ function handleKey() {
     direction = "vertical";
   }
   
-  playerY += yVelocity;
-  playerX += xVelocity;
-  oldPositions.push(playerX);
+  if (playerX > 0 && playerX < cols  && playerY > 0  && playerY < rows){
+    playerY += yVelocity;
+    playerX += xVelocity;
+  }
 
-  // put player back into grid
-  
+  // put player back into gri
+  if (grid[playerY][playerX] === 1){
+    state = "over"
+  }
+  else{
     grid[playerY][playerX] = 1;
-  
+  }
 }
 
 function createEmptyGrid() {
@@ -115,13 +128,4 @@ function displayGrid(grid, rows, cols) {
 
 
 
-function check(){
-  let cgrid = [];
-  for (let x = 0; x < cols; x++) {
-    cgrid.push([]);
-    for (let y = 0; y < rows; y++) {
-      cgrid[x].push(grid[playerX][playerY]);
-    }
-  }
-  return cgrid;
-}
+
