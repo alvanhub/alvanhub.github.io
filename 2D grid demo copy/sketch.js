@@ -12,6 +12,8 @@ let playerX = 15;
 let playerY = 15;
 let yVelocity = 1;
 let xVelocity = 0;
+let cycleY = 5;
+let cycleX = 5;
 let speed = 20;
 let direction = "vertical"
 let oldPositions;
@@ -26,6 +28,7 @@ function setup() {
   }
   grid = createEmptyGrid(cols, rows);
   grid[playerY][playerX] = 1;
+  grid[cycleY][cycleX] = 2;
 }
 
 function draw() {
@@ -36,14 +39,11 @@ function draw() {
     handleKey();
   }
 }
-if (keyIsDown(LEFT_ARROW)){
-  speed = 10;
-}else{
-  speed = 20;
-}
-
-console.log(playerX)
-
+  if (keyIsDown(LEFT_ARROW)){
+    speed = 10;
+  }else{
+    speed = 20;
+  }
 }
 
 function windowResized() {
@@ -118,13 +118,26 @@ function displayGrid(grid, rows, cols) {
       if (grid[y][x] === 0) {
         fill(255);
       }
-      else {
+      else if(grid[y][x] === 1) {
         fill(0);
+      }
+      else if(grid[y][x] === 2){
+        fill(255,165,0);
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
   }
 }
+
+// function handleCycle() {
+//   let destination = {
+//     x = playerX,
+//     y = playerY
+//   };
+//   while(cycleX !== playerX && cycleY !== playerY) {
+//     cycleY += 1;
+//   }
+// }
 
 
 
