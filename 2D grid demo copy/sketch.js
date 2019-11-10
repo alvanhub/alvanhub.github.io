@@ -39,19 +39,24 @@ function windowResized() {
 }
 
 function keyTyped() {
+  if (key === "s" && playerY < 30) {
+    yVelocity = 1;
+    xVelocity = 0;
+  }
+  if (key === "d" && playerX < 30) {
+    yVelocity = 0;
+    xVelocity = 1;
+  }
+  if (key === "w" && playerY > 0) {
+    yVelocity = -1;
+    xVelocity = 0;
+  }
+  if (key === "a" && playerX > 0) {
+    yVelocity = 0;
+    xVelocity = -1;
+  }
   playerY += yVelocity;
   playerX += xVelocity;
-  if (key === "s" && playerY > 0) {
-    yVelocity = -1;
-  }
-  if (key === "s" && playerY > 0) {
-    dVelocity = -1;
-  }
-  if (key === "s" && playerY > 0) {
-    dVelocity = -1;
-  }
-  
-
   // put player back into grid
   grid[playerY][playerX] = 1;
 }
