@@ -99,9 +99,15 @@ function update() {
       neighbors -= grid[y][x];
 
       //apply rules!
-      if (neighbors === 0 || neighbors === 1) {
-        nextTurn[y][x]=0;
-        nextTurn[y+1][x] = 1;
+      // if(grid[y][x]=== 0){
+
+      // }
+
+
+      if (grid[y][x] === 1) { //currently dead
+        if (neighbors === 1) {
+          nextTurn[y-1][x] = 1;
+        }
       }
     }
   }
