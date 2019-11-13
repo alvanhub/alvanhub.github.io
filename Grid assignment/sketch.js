@@ -6,54 +6,67 @@
 // - describe what you did to take this project "above and beyond"
 
 let grid;
-let rows = 60;
-let cols = 60;
-let playerX = 10;
+let rows = 30;
+let cols = 30;
+let playerX = 15;
 let playerY = 15;
 let yVelocity = 1;
 let xVelocity = 0;
-let speed = 20;
+let speed = 12;
 let axis = "vertical";
-let state = "go";
+let state = "start screen";
 let alive = "alive";
 let south;
 let north;
 let east;
 let west;
 let enemy;
-let EM = 2;
+let logo;
+
+// function preload(){
+//   logo = image("assets/mvtronlogo.png");
+// }
+
 
 
 
 function setup() {
   if (windowWidth > windowHeight) {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowHeight, windowHeight);
   }
   else {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowWidth);
   }
+  
   
   grid = createEmptyGrid(cols, rows);
   grid[playerY][playerX] = 1;
-  enemy1 = new Cycle(5,5);
-  enemy2 = new Cycle(15,5,EM);
+  enemy1 = new Cycle(15,1);
+  enemy2 = new Cycle(15,5);
 }
 
+
 function draw() {
-  background(220);
+  if (state === "start screen") {
+    background(0);
+    menu();
+    checkButtonClick();
+  }
+
   if (state === "go"){
-  displayGrid(grid, rows, cols);
-  if (frameCount % speed === 0) {
-    handleKey();
-  }
-
-
-  if (frameCount % 10 === 0) {
+    background(220);
     
-    enemy2.update();
-    enemy2.move();
-    enemy2.display();
-  }
+    displayGrid(grid, rows, cols);
+
+    if (frameCount % speed === 0) {
+      handleKey();
+    }
+
+    if (frameCount % 10 === 0) {
+      enemy1.update();
+      enemy1.move();
+      enemy1.display();
+    }
 
 
 }
@@ -68,9 +81,9 @@ if(state === "over") {
   }
 }
 if(alive === "dead") {
-  enemy2.update();
-  enemy2.move();
-  enemy2.display();
+  enemy1.update();
+  enemy1.move();
+  enemy1.display();
   displayGrid(grid, rows, cols);
 }
   if (keyIsDown(LEFT_ARROW)){
@@ -169,7 +182,7 @@ function displayGrid(grid, rows, cols) {
         fill(51,171,249);
         stroke(51,171,249);
       }
-      else if(grid[y][x] === EM){
+      else if(grid[y][x] === 2){
         fill(255,165,0);
         stroke(255,165,0);
       }
@@ -181,17 +194,17 @@ function displayGrid(grid, rows, cols) {
 
 
 class Cycle {
-  constructor(x,y,EM){
+  constructor(x,y){
     this.cycleX = x;
     this.cycleY = y;
     this.xVel = 0;
     this.yVel = 1;
     this.direction = "south";
-    this.EM = EM
+    
   }
 
   setup() {
-    grid[this.cycleY][this.cycleX] = EM;
+    grid[this.cycleY][this.cycleX] = 2;
   }
 
   update() {
@@ -325,7 +338,7 @@ class Cycle {
     if(alive === "dead") {
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          if (grid[y][x] === EM) {
+          if (grid[y][x] === 2) {
             grid[y][x] = 0;
           }
         }
@@ -370,6 +383,24 @@ class Cycle {
   }
 
 
+}
+
+function menu() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2, height/2 - 100, 400, 150);
+  textAlign(CENTER, CENTER);
+  textSize(50);
+  fill(0);
+  text("Start",width/2,height/2 -100);
+}
+
+function checkButtonClick() {
+  if (mouseIsPressed) {
+    if (mouseX > width/2 - 200 && mouseX < width/2 + 200 && mouseY > height/2 - 100 - 75 && mouseY < height/2 - 100 + 75) {
+      state = "go";
+    }
+  }
 }
 
 
