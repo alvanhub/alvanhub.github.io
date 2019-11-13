@@ -6,39 +6,37 @@
 // - describe what you did to take this project "above and beyond"
 
 let grid;
-let rows = 30;
-let cols = 30;
-let playerX = 15;
+let rows = 60;
+let cols = 60;
+let playerX = 10;
 let playerY = 15;
 let yVelocity = 1;
 let xVelocity = 0;
-let cycleX = 5;
-let cycleY = 5;
-let xVel = 0;
-let yVel = 1;
 let speed = 20;
 let axis = "vertical";
-let oldPositions;
 let state = "go";
-let direction = "south";
+let alive = "alive";
 let south;
 let north;
 let east;
 let west;
+let enemy;
+let EM = 2;
 
 
 
 function setup() {
   if (windowWidth > windowHeight) {
-    createCanvas(windowHeight, windowHeight);
+    createCanvas(windowWidth, windowHeight);
   }
   else {
-    createCanvas(windowWidth, windowWidth);
+    createCanvas(windowWidth, windowHeight);
   }
   
   grid = createEmptyGrid(cols, rows);
   grid[playerY][playerX] = 1;
-  grid[cycleY][cycleX] = 2;
+  enemy1 = new Cycle(5,5);
+  enemy2 = new Cycle(15,5,EM);
 }
 
 function draw() {
@@ -48,12 +46,31 @@ function draw() {
   if (frameCount % speed === 0) {
     handleKey();
   }
+
+
   if (frameCount % 10 === 0) {
-    handleCycle();
+    
+    enemy2.update();
+    enemy2.move();
+    enemy2.display();
   }
+
+
 }
 if(state === "over") {
-  handleKey();
+  displayGrid(grid, rows, cols);
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 1) {
+        grid[y][x] = 0;
+      }
+    }
+  }
+}
+if(alive === "dead") {
+  enemy2.update();
+  enemy2.move();
+  enemy2.display();
   displayGrid(grid, rows, cols);
 }
   if (keyIsDown(LEFT_ARROW)){
@@ -105,23 +122,28 @@ function handleKey() {
     axis = "vertical";
   }
   
-  if (playerX > 0 && playerX < cols  && playerY > 0  && playerY < rows){
+  
+  
+    
+ 
+  
+  if (alive !== "dead"){
     playerY += yVelocity;
     playerX += xVelocity;
   }
-
+  
+  
   // put player back into gri
-  if (grid[playerY][playerX] === 1){
+  if (grid[playerY][playerX] === 1 && alive !== "dead"|| grid[playerY][playerX] === 2 && alive !== "dead"){
     state = "over";
   }
   else{
     grid[playerY][playerX] = 1;
   }
 
-  if (state === "over") {
-    yVelocity = 0;
-    xVelocity = 0;
-  }
+
+  
+
 }
 
 function createEmptyGrid() {
@@ -147,7 +169,7 @@ function displayGrid(grid, rows, cols) {
         fill(51,171,249);
         stroke(51,171,249);
       }
-      else if(grid[y][x] === 2){
+      else if(grid[y][x] === EM){
         fill(255,165,0);
         stroke(255,165,0);
       }
@@ -156,190 +178,363 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
- function handleCycle() {
-  let clear = true;
-  west = grid[cycleY][cycleX-1];
-  south = grid[cycleY+1][cycleX];
-  north = grid[cycleY-1][cycleX];
-  east = grid[cycleY][cycleX+1];
-
-  if (direction === "south"){
-    if(south === 1|| west === 1|| east === 1 || south === 2|| west === 2|| east === 2) {
-      clear = !clear;
-    }
-  }
-  if (direction === "north"){
-    if(north === 1|| west === 1|| east === 1 || north === 2|| west === 2|| east === 2) {
-      clear = !clear;
-    }
-  }
-  if (direction === "east"){
-    if(south === 1|| north === 1|| east === 1 || south === 2|| north === 2|| east === 2) {
-      clear = !clear;
-    }
-  }
-  if (direction === "west"){
-    if(south === 1|| west === 1|| north === 1 || south === 2|| west === 2|| north === 2) {
-      clear = !clear;
-    }
-  }
 
 
-  if (clear) {
-    if (cycleY < playerY){
-      if (direction === "north") {
-        if (cycleX > playerX){
-          direction = "west";
+class Cycle {
+  constructor(x,y,EM){
+    this.cycleX = x;
+    this.cycleY = y;
+    this.xVel = 0;
+    this.yVel = 1;
+    this.direction = "south";
+    this.EM = EM
+  }
+
+  setup() {
+    grid[this.cycleY][this.cycleX] = EM;
+  }
+
+  update() {
+    let clear = true;
+    west = grid[this.cycleY][this.cycleX-1];
+    south = grid[this.cycleY+1][this.cycleX];
+    north = grid[this.cycleY-1][this.cycleX];
+    east = grid[this.cycleY][this.cycleX+1];
+
+    if (this.direction === "south"){
+      if(south === 1|| west === 1|| east === 1 || south === 2|| west === 2|| east === 2) {
+        clear = !clear;
+      }else if(this.cycleY < 1) {
+        clear = !clear;
+      }
+    }
+    if (this.direction === "north"){
+      if(north === 1|| west === 1|| east === 1 || north === 2|| west === 2|| east === 2) {
+        clear = !clear;
+      }else if(this.cycleY > 29) {
+        clear = !clear;
+      }
+    }
+    if (this.direction === "east"){
+      if(south === 1|| north === 1|| east === 1 || south === 2|| north === 2|| east === 2) {
+        clear = !clear;
+      }else if(this.cycleX > 29) {
+        clear = !clear;
+      }
+    }
+    if (this.direction === "west"){
+      if(south === 1|| west === 1|| north === 1 || south === 2|| west === 2|| north === 2) {
+        clear = !clear;
+      }else if(this.cycleY < 1) {
+        clear = !clear;
+      }
+    }
+
+
+    if (clear) {
+      if (this.cycleY < playerY){
+        if (this.direction === "north") {
+          if (this.cycleX > playerX){
+            this.direction = "west";
+          }else{
+            this.direction = "east";
+          }
         }else{
-          direction = "east";
+          this.direction = "south";
         }
-      }else{
-        direction = "south";
-      }
-    }else if (cycleY > playerY){
-      if (direction === "south"){
-        if (cycleX > playerX){
-          direction = "west";
+      }else if (this.cycleY > playerY){
+        if (this.direction === "south"){
+          if (this.cycleX > playerX){
+            this.direction = "west";
+          }else{
+            this.direction = "east";
+          }
         }else{
-          direction = "east";
+          this.direction = "north"
         }
-      }else{
-        direction = "north"
-      }
-    }else if(cycleY === playerY) {
-      if (cycleX > playerX){
-        direction = "west";
-      }else{
-        direction = "east";
-      }
-    }
-  }
-
-  if (!clear) {
-    if (direction === "south") {
-      if (south === 1 || south === 2) {
-        if (west === 0) {
-          direction = "west";
-        }else if (east === 0){
-          direction = "east";
+      }else if(this.cycleY === playerY) {
+        if (this.cycleX > playerX){
+          this.direction = "west";
         }else{
-          state = "over";
-          direction = "none";
-        }
-      }else if (west !== 0 || east !== 0) {
-        direction = "south";
-      }
-    }
-
-    else if (direction === "north") {
-      if (north === 1 || north === 2 ) {
-        if (west === 0) {
-          direction = "west";
-        }else if (east === 0){
-          direction = "east";
-        }else{
-          state = "over";
-          direction = "none";
-        }
-      }else if (west !== 0 || east !== 0 ) {
-        direction = "north";
-      }
-    }
-
-    else if (direction === "east") {
-      if (east === 1 || east === 2) {
-        if (south === 0) {
-          direction = "south";
-        }else if (north === 0){
-          direction = "north";
-        }else{
-          state = "over";
-          direction = "none";
-        }
-      }else if (north !== 0 || south !== 0) {
-        direction = "east";
-      }
-    }
-
-    else if (direction === "west") {
-      if (west === 1 || west === 2) {
-        if (south === 0) {
-          direction = "south";
-        }else if (north === 0){
-          direction = "north";
-        }else{
-          state = "over";
-          direction = "none";
-        }
-      }else if (north !== 0 || south !== 0) {
-        direction = "west";
-      }
-    }
-
-  }
-
-  if(state === "over") {
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        if (grid[y][x] === 2) {
-          grid[y][x] = 0;
+          this.direction = "east";
         }
       }
     }
-  }
-   
-  if (direction === "south"){
-    xVel = 0;
-    yVel = 1;
-  }
-  if (direction === "north"){
-    xVel = 0;
-    yVel = -1;
-  }
-  if (direction === "east"){
-    xVel = 1;
-    yVel = 0;
-  }
-  if (direction === "west"){
-    xVel = -1;
-    yVel = 0;
-  }
-  if (direction === "none"){
-    xVel = 0;
-    yVel = 0;
+
+    if (!clear) {
+      if (this.direction === "south") {
+        if (south === 1 || south === 2) {
+          if (west === 0) {
+            this.direction = "west";
+          }else if (east === 0){
+            this.direction = "east";
+          }else{
+            alive = "dead";
+            this.direction = "none";
+          }
+        }else if (west !== 0 || east !== 0 ) {
+          this.direction = "south";
+        }
+    }
+
+      else if (this.direction === "north") {
+        if (north === 1 || north === 2 ) {
+          if (west === 0) {
+            this.direction = "west";
+          }else if (east === 0){
+            this.direction = "east";
+          }else{
+            alive = "dead";
+            this.direction = "none";
+          }
+        }else if (west !== 0 || east !== 0 ) {
+          this.direction = "north";
+        }
+      }
+
+      else if (this.direction === "east") {
+        if (east === 1 || east === 2) {
+          if (south === 0) {
+            this.direction = "south";
+          }else if (north === 0){
+            this.direction = "north";
+          }else{
+            alive = "dead";
+            this.direction = "none";
+          }
+        }else if (north !== 0 || south !== 0) {
+          this.direction = "east";
+        }
+      }
+
+      else if (this.direction === "west") {
+        if (west === 1 || west === 2) {
+          if (south === 0) {
+            this.direction = "south";
+          }else if (north === 0){
+            this.direction = "north";
+          }else{
+            alive = "dead";
+            this.direction = "none";
+          }
+        }else if (north !== 0 || south !== 0) {
+          this.direction = "west";
+        }
+      }
+    }
+    if(alive === "dead") {
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          if (grid[y][x] === EM) {
+            grid[y][x] = 0;
+          }
+        }
+      }
+    }
   }
 
-  cycleX += xVel;
-  cycleY += yVel;
+  move() {
+    if (this.direction === "south"){
+      this.xVel= 0;
+      this.yVel = 1;
+    }
+    if (this.direction === "north"){
+      this.xVel= 0;
+      this.yVel = -1;
+    }
+    if (this.direction === "east"){
+      this.xVel= 1;
+      this.yVel = 0;
+    }
+    if (this.direction === "west"){
+      this.xVel= -1;
+      this.yVel = 0;
+    }
+    if (this.direction === "none"){
+      this.xVel= 0;
+      this.yVel = 0;
+    }
+    
+    
+    this.cycleX += this.xVel;
+    this.cycleY += this.yVel;
 
-  if (state === "go"){
-    grid[cycleY][cycleX] = 2;
+    
+
   }
+
+  display() {
+    if (alive === "alive"){
+      grid[this.cycleY][this.cycleX] = 2;
+    }
+  }
+
 
 }
 
 
 
+// function handleCycle() {
+//   let clear = true;
+//   west = grid[cycleY][cycleX-1];
+//   south = grid[cycleY+1][cycleX];
+//   north = grid[cycleY-1][cycleX];
+//   east = grid[cycleY][cycleX+1];
 
-
-//  if (front === "open"){
-//    if (cycleY < playerY){
-//      cycleY += 1;
-//     }
-//     else if (cycleY > playerY){
-//       cycleY -= 1;
-//     }
-//     else if (cycleY === playerY){
-//       if (cycleX < playerX){
-//         cycleX += 1;
-//       }else{
-//         cycleX -= 1;
+//   if (direction === "south"){
+//     if(south === 1|| west === 1|| east === 1 || south === 2|| west === 2|| east === 2) {
+//       clear = !clear;
 //     }
 //   }
+//   if (direction === "north"){
+//     if(north === 1|| west === 1|| east === 1 || north === 2|| west === 2|| east === 2) {
+//       clear = !clear;
+//     }
+//   }
+//   if (direction === "east"){
+//     if(south === 1|| north === 1|| east === 1 || south === 2|| north === 2|| east === 2) {
+//       clear = !clear;
+//     }
+//   }
+//   if (direction === "west"){
+//     if(south === 1|| west === 1|| north === 1 || south === 2|| west === 2|| north === 2) {
+//       clear = !clear;
+//     }
+//   }
+
+
+//   if (clear) {
+//     if (cycleY < playerY){
+//       if (direction === "north") {
+//         if (cycleX > playerX){
+//           direction = "west";
+//         }else{
+//           direction = "east";
+//         }
+//       }else{
+//         direction = "south";
+//       }
+//     }else if (cycleY > playerY){
+//       if (direction === "south"){
+//         if (cycleX > playerX){
+//           direction = "west";
+//         }else{
+//           direction = "east";
+//         }
+//       }else{
+//         direction = "north"
+//       }
+//     }else if(cycleY === playerY) {
+//       if (cycleX > playerX){
+//         direction = "west";
+//       }else{
+//         direction = "east";
+//       }
+//     }
+//   }
+
+//   if (!clear) {
+//     if (direction === "south") {
+//       if (south === 1 || south === 2) {
+//         if (west === 0) {
+//           direction = "west";
+//         }else if (east === 0){
+//           direction = "east";
+//         }else{
+//           state = "dead";
+//           direction = "none";
+//         }
+//       }else if (west !== 0 || east !== 0) {
+//         direction = "south";
+//       }
+//     }
+
+//     else if (direction === "north") {
+//       if (north === 1 || north === 2 ) {
+//         if (west === 0) {
+//           direction = "west";
+//         }else if (east === 0){
+//           direction = "east";
+//         }else{
+//           state = "over";
+//           direction = "none";
+//         }
+//       }else if (west !== 0 || east !== 0 ) {
+//         direction = "north";
+//       }
+//     }
+
+//     else if (direction === "east") {
+//       if (east === 1 || east === 2) {
+//         if (south === 0) {
+//           direction = "south";
+//         }else if (north === 0){
+//           direction = "north";
+//         }else{
+//           state = "over";
+//           direction = "none";
+//         }
+//       }else if (north !== 0 || south !== 0) {
+//         direction = "east";
+//       }
+//     }
+
+//     else if (direction === "west") {
+//       if (west === 1 || west === 2) {
+//         if (south === 0) {
+//           direction = "south";
+//         }else if (north === 0){
+//           direction = "north";
+//         }else{
+//           state = "over";
+//           direction = "none";
+//         }
+//       }else if (north !== 0 || south !== 0) {
+//         direction = "west";
+//       }
+//     }
+
+//   }
+
+//   if(state === "over") {
+//     for (let y = 0; y < rows; y++) {
+//       for (let x = 0; x < cols; x++) {
+//         if (grid[y][x] === 2) {
+//           grid[y][x] = 0;
+//         }
+//       }
+//     }
+//   }
+   
+//   if (direction === "south"){
+//     xVel = 0;
+//     yVel = 1;
+//   }
+//   if (direction === "north"){
+//     xVel = 0;
+//     yVel = -1;
+//   }
+//   if (direction === "east"){
+//     xVel = 1;
+//     yVel = 0;
+//   }
+//   if (direction === "west"){
+//     xVel = -1;
+//     yVel = 0;
+//   }
+//   if (direction === "none"){
+//     xVel = 0;
+//     yVel = 0;
+//   }
+  
+  
+//   cycleX += xVel;
+//   cycleY += yVel;
+
+//   if (state === "go"){
+//     grid[cycleY][cycleX] = 2;
+//   }
+
 // }
-// if (grid[cycleY][cycleX] === 1){
-//   cycleY += 1;
-//   grid[cycleY][cycleX] = 2;
-// }
-// else{
-//   grid[cycleY][cycleX] = 2;
+
+
