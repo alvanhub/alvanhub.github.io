@@ -66,6 +66,7 @@ function draw() {
       enemy1.update();
       enemy1.move();
       enemy1.display();
+      
     }
 
 
