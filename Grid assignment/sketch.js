@@ -1,10 +1,11 @@
-// line art demo
-// Your Name
-// Date
+// Grid based assignment
+// Alvan Alam
+// 13/11/2019
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// I implemented objects aswell as an enemy AI into my game
 
+// all variables used in my code
 let grid;
 let rows = 30;
 let cols = 30;
@@ -27,14 +28,9 @@ let enemy;
 
 
 function setup() {
-  if (windowWidth > windowHeight) {
-    createCanvas(windowHeight, windowHeight);
-  }
-  else {
-    createCanvas(windowWidth, windowWidth);
-  }
+  windowResized();
   
-  
+  // creates the grid and the grid boundary
   grid = createEmptyGrid(cols, rows);
   for (let x = 0; x < cols; x++) {
     grid[0][x] = 3;
@@ -44,6 +40,7 @@ function setup() {
     grid[y][0] = 3;
     grid[y][29] = 3;
   }
+
   grid[playerY][playerX] = 1;
   enemy1 = new Cycle(15,1);
   enemy2 = new Cycle(15,5);
@@ -51,6 +48,7 @@ function setup() {
 
 
 function draw() {
+  // different states of the game that change from start menu to gameplay screen and also change when the player or AI dies
   if (state === "start screen") {
     background(0);
     menu();
@@ -72,23 +70,25 @@ function draw() {
       enemy1.display();
       
     }
-}
-if(state === "over") {
-  displayGrid(grid, rows, cols);
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 1) {
-        grid[y][x] = 0;
+  }
+
+  if(state === "over") {
+    displayGrid(grid, rows, cols);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        if (grid[y][x] === 1) {
+          grid[y][x] = 0;
+        }
       }
     }
   }
-}
-if(alive === "dead") {
-  enemy1.update();
-  enemy1.move();
-  enemy1.display();
-  displayGrid(grid, rows, cols);
-}
+
+  if(alive === "dead") {
+    enemy1.update();
+    enemy1.move();
+    enemy1.display();
+    displayGrid(grid, rows, cols);
+  }
   if (keyIsDown(LEFT_ARROW)){
     speed = 15;
   }else{
@@ -96,8 +96,7 @@ if(alive === "dead") {
   }
 }
 
-
-
+// function that resizes the window if it gets changed
 function windowResized() {
   if (windowWidth > windowHeight) {
     createCanvas(windowHeight, windowHeight);
@@ -107,6 +106,7 @@ function windowResized() {
   }
 }
 
+// function that controls and sets the rules for the players movement
 function handleKey() {
   
   if (key === "s") {
@@ -150,11 +150,9 @@ function handleKey() {
     grid[playerY][playerX] = 1;
   }
 
-
-  
-
 }
 
+// function that creates an empty two dimensional array at the start of the game
 function createEmptyGrid() {
   let emptyGrid = [];
   for (let x = 0; x < cols; x++) {
@@ -166,6 +164,7 @@ function createEmptyGrid() {
   return emptyGrid;
 }
 
+// functioned that displays the different values inside the grid as different colored squares
 function displayGrid(grid, rows, cols) {
   let cellSize = width / cols;
   for (let y = 0; y < rows; y++) {
@@ -192,7 +191,7 @@ function displayGrid(grid, rows, cols) {
 }
 
 
-
+// class used to make the enemy AI
 class Cycle {
   constructor(x,y){
     this.cycleX = x;
@@ -209,11 +208,14 @@ class Cycle {
 
   update() {
     let clear = true;
+
+    // variables that check to see what the values of the surrounding positions are
     west = grid[this.cycleY][this.cycleX-1];
     south = grid[this.cycleY+1][this.cycleX];
     north = grid[this.cycleY-1][this.cycleX];
     east = grid[this.cycleY][this.cycleX+1];
 
+    // statements that tell the AI if the positions surrounding him are empty or not
     if (this.direction === "south"){
       if(south === 1|| west === 1|| east === 1 || south === 2|| west === 2|| east === 2 || south === 3|| west === 3|| east === 3 ) {
         clear = !clear;
@@ -243,7 +245,7 @@ class Cycle {
       }
     }
 
-
+    // statements that tell the AI to meet the players y value first and then move towards it on the x axis
     if (clear) {
       if (this.cycleY < playerY){
         if (this.direction === "north") {
@@ -274,6 +276,7 @@ class Cycle {
       }
     }
 
+    //statements that check tell the AI what to do if there are surrounding obstacles
     if (!clear) {
       if (this.direction === "south") {
         if (south === 1 || south === 2 || south === 3) {
@@ -336,6 +339,7 @@ class Cycle {
       }
     }
 
+    // for loop that destroys the AI
     if(alive === "dead") {
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
@@ -347,6 +351,7 @@ class Cycle {
     }
   }
 
+  // funstion that moves the AI after its direction is decided
   move() {
     if (this.direction === "south"){
       this.xVel= 0;
@@ -374,6 +379,7 @@ class Cycle {
 
   }
 
+  //function that places the AI in its new position
   display() {
     if (alive === "alive"){
       grid[this.cycleY][this.cycleX] = 2;
@@ -381,6 +387,7 @@ class Cycle {
   }
 }
 
+//functions that create the start menu 
 function menu() {
   rectMode(CENTER);
   fill(255);
