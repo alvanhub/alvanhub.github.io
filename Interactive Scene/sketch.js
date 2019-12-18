@@ -1,6 +1,7 @@
 // Interactive Assignment
 // Alvan Alam
-// 9/25/2019
+// 12/18/2019
+// re-submitted
 //
 // Extra for Experts:
 // I implemented the mouseWheel function using it to change the strokeWeight/the thickness of the shapes trail
